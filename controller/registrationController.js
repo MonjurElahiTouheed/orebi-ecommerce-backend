@@ -1,4 +1,5 @@
 const emailValidation = require("../helpers/emailValidation");
+const passwordValidation = require("../helpers/passwordValidation");
 const userSchema = require("../model/userSchema");
 const bcrypt = require('bcrypt');
 
@@ -23,6 +24,11 @@ async function registrationController(req, res) {
     if (!emailValidation(email)) {
         return res.json({
             message: 'Please write your correct email'
+        })
+    }
+    if (!passwordValidation(password)) {
+        return res.json({
+            message: 'Please give password of minimum 8 characters long and lowercase, uppercase, special characters and numbers.'
         })
     }
     if (alreadyExistUser) {
