@@ -1,7 +1,9 @@
 const emailValidation = require("../helpers/emailValidation");
+const emailVerification = require("../helpers/emailVerification");
 const passwordValidation = require("../helpers/passwordValidation");
 const userSchema = require("../model/userSchema");
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 async function registrationController(req, res) {
     const { firstName, lastName, email, password } = req.body;
@@ -42,21 +44,27 @@ async function registrationController(req, res) {
             message: 'Please give your password'
         })
     }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const otpExpire = new Date(Date.now() + 5 * 60 * 1000);
+
     bcrypt.hash(password, 10, function (err, hash) {
         // Store hash in your password DB.
         const user = new userSchema({
             firstName: firstName,
             lastName: lastName,
             email: email,
-            password: hash
+            password: hash,
+            otp: otp,
+            otpExpire: otpExpire
         })
+        emailVerification(email, otp)
         user.save();
         res.status(201).json({
             message: 'Your account created successfully',
             data: user
         })
     });
-
 }
 
 module.exports = registrationController;
