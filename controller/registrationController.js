@@ -58,7 +58,7 @@ async function registrationController(req, res) {
             otp: otp,
             otpExpire: otpExpire
         })
-        emailVerification(email, otp)
+        emailVerification(email, otp);
         user.save();
         res.status(201).json({
             message: 'Your account created successfully',
