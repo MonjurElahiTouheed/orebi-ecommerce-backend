@@ -2,6 +2,7 @@ const emailValidation = require("../helpers/emailValidation");
 const passwordValidation = require("../helpers/passwordValidation");
 const userSchema = require("../model/userSchema");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 async function loginController(req, res) {
     const {email, password} = req.body;
@@ -28,9 +29,28 @@ async function loginController(req, res) {
     const user = await userSchema.findOne({email});
     if(!user){
         return res.json({
-            error: "email is not matched"
+            error: "email is not found"
         })
     }
+    if(!user.verified){
+        return res.json({
+            error: "Please verify your email first"
+        })
+    }
+
+    const accessToken = jwt.sign(
+        {
+            userId: user._id,
+            firstName: user.firstName,
+            email:  user.email,
+            role: user.role
+        },
+        'monjurmern2406',
+        {
+            expiresIn: "10m"
+        }
+    );
+    console.log(accessToken);
     const isMatched = await bcrypt.compare(password, user.password);
     if(!isMatched){
         return res.json({
@@ -39,7 +59,8 @@ async function loginController(req, res) {
     }
     else{
         return res.json({
-            message: "login successfully done"
+            message: "login successfully done",
+            accessToken: accessToken
         })
     }
 

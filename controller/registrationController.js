@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
 async function registrationController(req, res) {
-    const { firstName, lastName, email, password } = req.body;
+    const { firstName, lastName, email, password, role } = req.body;
     const alreadyExistUser = await userSchema.findOne({email: email});
     if (!firstName) {
         return res.json({
@@ -55,6 +55,7 @@ async function registrationController(req, res) {
             lastName: lastName,
             email: email,
             password: hash,
+            role: role,
             otp: otp,
             otpExpire: otpExpire
         })
